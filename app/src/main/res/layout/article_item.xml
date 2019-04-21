@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="article"
+            type="com.github.h01d.newsapp.data.remote.model.Article" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="2dp"
+        android:foreground="?android:selectableItemBackground">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#fdfdfd">
+
+            <ImageView
+                android:id="@+id/i_article_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                app:imageUrl="@{article.urlToImage}"/>
+
+            <TextView
+                android:id="@+id/i_article_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/i_article_source"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_toEndOf="@+id/i_article_image"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-light"
+                android:maxLines="3"
+                android:text="@{article.title}"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/i_article_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-thin"
+                android:maxLines="1"
+                android:textSize="12sp"
+                app:date="@{article.publishedAt}" />
+
+
+            <TextView
+                android:id="@+id/i_article_source"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_toStartOf="@id/i_article_date"
+                android:layout_toEndOf="@id/i_article_image"
+                android:fontFamily="sans-serif-thin"
+                android:text="@{article.source.name}"
+                android:maxLines="1"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/i_article_image" />
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
