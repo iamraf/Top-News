@@ -46,6 +46,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class ArticlesFragment extends Fragment implements ArticlesAdapter.ArticlesAdapterListener
@@ -83,7 +84,8 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
 
         mViewModel = ViewModelProviders.of(this).get(ArticlesViewModel.class);
 
-        reloadData();
+        getActivity().setTitle(mViewModel.getCountry());
+        observeData();
     }
 
     @Override
@@ -115,11 +117,56 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
         startActivity(intent);
     }
 
-    private void reloadData()
+    private void observeData()
     {
-        getActivity().setTitle(mViewModel.getCountry());
+        mViewModel.getLoadingIndicator()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableObserver<Boolean>(){
+                    @Override
+                    public void onNext(Boolean loading) {
+                        mDataBinding.fArticlesProgress.setVisibility(loading ? View.VISIBLE : View.GONE);
 
-        mViewModel.getArticles(mViewModel.getCountryCode())
+                        if(loading){
+                            mDataBinding.fArticlesError.setVisibility(View.GONE);
+                            mDataBinding.fArticlesContent.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        mViewModel.getErrorMessage()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableObserver<String>() {
+                    @Override
+                    public void onNext(String message) {
+                        mDataBinding.fArticlesError.setVisibility(View.VISIBLE);
+                        mDataBinding.fArticlesErrorText.setText("An error occurred, please try again.");
+                        mDataBinding.fArticlesProgress.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        mViewModel.getArticles()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ArticlesResponse>()
@@ -127,9 +174,7 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
                     @Override
                     public void onSubscribe(Disposable d)
                     {
-                        mDataBinding.fArticlesProgress.setVisibility(View.VISIBLE);
-                        mDataBinding.fArticlesContent.setVisibility(View.GONE);
-                        mDataBinding.fArticlesError.setVisibility(View.GONE);
+
                     }
 
                     @Override
@@ -158,15 +203,13 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
                     @Override
                     public void onError(Throwable e)
                     {
-                        mDataBinding.fArticlesError.setVisibility(View.VISIBLE);
-                        mDataBinding.fArticlesErrorText.setText("An error occurred, please try again.");
-                        mDataBinding.fArticlesProgress.setVisibility(View.GONE);
+
                     }
 
                     @Override
                     public void onComplete()
                     {
-                        mDataBinding.fArticlesProgress.setVisibility(View.GONE);
+
                     }
                 });
     }
@@ -201,8 +244,6 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 mViewModel.setCountry(countries[position], codes[position]);
-
-                reloadData();
 
                 mCountrySelection.dismiss();
             }

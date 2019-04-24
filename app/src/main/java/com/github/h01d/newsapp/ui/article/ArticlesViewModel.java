@@ -22,26 +22,79 @@ import com.github.h01d.newsapp.data.remote.ApiService;
 import com.github.h01d.newsapp.data.remote.model.ArticlesResponse;
 
 import androidx.lifecycle.ViewModel;
-
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.processors.PublishProcessor;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 
 public class ArticlesViewModel extends ViewModel
 {
     private ApiService apiService;
 
+    private final BehaviorSubject<ArticlesResponse> articles;
+    private final BehaviorSubject<Boolean> loading;
+    private final PublishSubject<String> error;
+
     public ArticlesViewModel()
     {
         apiService = ApiClient.getClient();
+        articles = BehaviorSubject.create();
+        loading = BehaviorSubject.create();
+        error = PublishSubject.create();
+        loadData(getCountryCode());
     }
 
-    Observable<ArticlesResponse> getArticles(String countryCode)
+    private void loadData(String countryCode) {
+        apiService.getTopHeadlines(countryCode)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ArticlesResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        loading.onNext(true);
+                    }
+
+                    @Override
+                    public void onNext(ArticlesResponse articlesResponse) {
+                        articles.onNext(articlesResponse);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        error.onNext(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        loading.onNext(false);
+                    }
+                });
+    }
+
+    Observable<ArticlesResponse> getArticles()
     {
-        return apiService.getTopHeadlines(countryCode);
+        return articles;
+    }
+
+    Observable<Boolean> getLoadingIndicator()
+    {
+        return loading;
+    }
+
+    Observable<String> getErrorMessage()
+    {
+        return error;
     }
 
     void setCountry(String country, String countryCode)
     {
         PreferencesManager.setCountry(country, countryCode);
+        loadData(countryCode);
     }
 
     String getCountry()
