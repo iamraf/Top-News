@@ -24,32 +24,111 @@ import com.github.h01d.newsapp.data.remote.model.ArticlesResponse;
 import androidx.lifecycle.ViewModel;
 
 import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
 
 public class ArticlesViewModel extends ViewModel
 {
     private ApiService apiService;
 
+    private BehaviorSubject<ArticlesResponse> articles;
+    private BehaviorSubject<Boolean> loading;
+    private BehaviorSubject<String> error;
+
     public ArticlesViewModel()
     {
         apiService = ApiClient.getClient();
+
+        articles = BehaviorSubject.create();
+        loading = BehaviorSubject.create();
+        error = BehaviorSubject.create();
+
+        fetchNews();
     }
 
-    Observable<ArticlesResponse> getArticles(String countryCode)
+    public void fetchNews()
     {
-        return apiService.getTopHeadlines(countryCode);
+        loading.onNext(true);
+
+        apiService.getTopHeadlines(getCountryCode())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ArticlesResponse>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+
+                    }
+
+                    @Override
+                    public void onNext(ArticlesResponse articlesResponse)
+                    {
+                        if(articlesResponse.getStatus().equals("ok"))
+                        {
+                            if(articlesResponse.getArticles().size() > 0)
+                            {
+                                articles.onNext(articlesResponse);
+                            }
+                            else
+                            {
+                                error.onNext("No top headlines found!");
+                            }
+                        }
+                        else
+                        {
+                            error.onNext("An error occurred, please try again.");
+                        }
+
+                        loading.onNext(false);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        error.onNext("An error occurred, please try again.");
+                        loading.onNext(false);
+                    }
+
+                    @Override
+                    public void onComplete()
+                    {
+
+                    }
+                });
     }
 
-    void setCountry(String country, String countryCode)
+    public Observable<ArticlesResponse> getArticles()
+    {
+        return articles;
+    }
+
+    public Observable<Boolean> getLoadingIndicator()
+    {
+        return loading;
+    }
+
+    public Observable<String> getErrorMessage()
+    {
+        return error;
+    }
+
+    public void setCountry(String country, String countryCode)
     {
         PreferencesManager.setCountry(country, countryCode);
+
+        fetchNews();
     }
 
-    String getCountry()
+    public String getCountry()
     {
         return PreferencesManager.getCountry();
     }
 
-    String getCountryCode()
+    public String getCountryCode()
     {
         return PreferencesManager.getCountryCode();
     }
