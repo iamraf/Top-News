@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="News">
+        <ListPreference
+            android:defaultValue="gr"
+            android:entries="@array/countries"
+            android:entryValues="@array/codes"
+            android:icon="@drawable/ic_location_on_black_24dp"
+            android:key="pref_country"
+            android:summary="%s"
+            android:title="Location" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Application">
+        <Preference
+            android:key="pref_about"
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="About" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -16,36 +16,26 @@ package com.github.h01d.newsapp.ui.article;
     limitations under the License.
 */
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
 
 import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.remote.model.Article;
-import com.github.h01d.newsapp.data.remote.model.ArticlesResponse;
 import com.github.h01d.newsapp.databinding.FragmentArticlesBinding;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ArticlesFragment extends Fragment implements ArticlesAdapter.ArticlesAdapterListener
@@ -53,7 +43,7 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
     private ArticlesViewModel mViewModel;
     private FragmentArticlesBinding mDataBinding;
 
-    private AlertDialog mCountrySelection;
+    private CompositeDisposable disposable;
 
     public ArticlesFragment()
     {
@@ -65,13 +55,17 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
     {
         mDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_articles, container, false);
 
-        setHasOptionsMenu(true);
-
-        createCountriesDialog();
+        disposable = new CompositeDisposable();
 
         mDataBinding.fArticlesRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         mDataBinding.fArticlesRecycler.setHasFixedSize(true);
         mDataBinding.fArticlesRecycler.setAdapter(new ArticlesAdapter(this));
+
+        mDataBinding.fArticlesSwipe.setOnRefreshListener(() ->
+        {
+            mViewModel.fetchNews();
+            mDataBinding.fArticlesSwipe.setRefreshing(false);
+        });
 
         return mDataBinding.getRoot();
     }
@@ -82,30 +76,59 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
         super.onActivityCreated(savedInstanceState);
 
         mViewModel = ViewModelProviders.of(this).get(ArticlesViewModel.class);
-        observe();
 
-        getActivity().setTitle(mViewModel.getCountry());
+        disposable.add(mViewModel.getLoadingIndicator()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aBoolean ->
+                {
+                    if(aBoolean)
+                    {
+                        mDataBinding.fArticlesProgress.setVisibility(View.VISIBLE);
+                        mDataBinding.fArticlesContent.setVisibility(View.GONE);
+                        mDataBinding.fArticlesError.setVisibility(View.GONE);
+                    }
+                    else
+                    {
+                        mDataBinding.fArticlesProgress.setVisibility(View.GONE);
+                    }
+                }));
+
+        disposable.add(mViewModel.getArticles()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(articlesResponse ->
+                {
+                    ((ArticlesAdapter) mDataBinding.fArticlesRecycler.getAdapter()).setData(articlesResponse.getArticles());
+                    mDataBinding.fArticlesContent.setVisibility(View.VISIBLE);
+
+                    getActivity().setTitle(mViewModel.getCountryName());
+                }));
+
+        disposable.add(mViewModel.getErrorMessage()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s ->
+                {
+                    mDataBinding.fArticlesErrorText.setText(s);
+                    mDataBinding.fArticlesError.setVisibility(View.VISIBLE);
+                }));
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
+    public void onResume()
     {
-        super.onCreateOptionsMenu(menu, inflater);
+        super.onResume();
 
-        inflater.inflate(R.menu.articles_menu, menu);
+        mViewModel.fetchNews();
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    public void onDestroy()
     {
-        switch(item.getItemId())
-        {
-            case R.id.m_articles_location:
-                mCountrySelection.show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        super.onDestroy();
+
+        disposable.dispose();
     }
 
     @Override
@@ -114,147 +137,5 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(article.getUrl()));
         startActivity(intent);
-    }
-
-    private void observe()
-    {
-        mViewModel.getLoadingIndicator()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Boolean>()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onNext(Boolean aBoolean)
-                    {
-                        if(aBoolean)
-                        {
-                            mDataBinding.fArticlesProgress.setVisibility(View.VISIBLE);
-                            mDataBinding.fArticlesContent.setVisibility(View.GONE);
-                            mDataBinding.fArticlesError.setVisibility(View.GONE);
-                        }
-                        else
-                        {
-                            mDataBinding.fArticlesProgress.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-
-                    }
-                });
-
-        mViewModel.getArticles()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ArticlesResponse>()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onNext(ArticlesResponse articlesResponse)
-                    {
-                        ((ArticlesAdapter) mDataBinding.fArticlesRecycler.getAdapter()).setData(articlesResponse.getArticles());
-                        mDataBinding.fArticlesContent.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-
-                    }
-                });
-
-        mViewModel.getErrorMessage()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>()
-                {
-                    @Override
-                    public void onSubscribe(Disposable d)
-                    {
-
-                    }
-
-                    @Override
-                    public void onNext(String s)
-                    {
-                        mDataBinding.fArticlesErrorText.setText(s);
-                        mDataBinding.fArticlesError.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onError(Throwable e)
-                    {
-
-                    }
-
-                    @Override
-                    public void onComplete()
-                    {
-
-                    }
-                });
-    }
-
-    private void createCountriesDialog()
-    {
-        final String[] countries = getResources().getStringArray(R.array.countries);
-        final String[] codes = getResources().getStringArray(R.array.codes);
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-        dialogBuilder.setTitle("Available Countries");
-
-        GridView gridView = new GridView(getContext());
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, countries);
-        gridView.setAdapter(arrayAdapter);
-
-        dialogBuilder.setView(gridView);
-        dialogBuilder.setNegativeButton("Close", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                dialog.dismiss();
-            }
-        });
-
-        mCountrySelection = dialogBuilder.create();
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                mViewModel.setCountry(countries[position], codes[position]);
-
-                getActivity().setTitle(mViewModel.getCountry());
-
-                mCountrySelection.dismiss();
-            }
-        });
     }
 }

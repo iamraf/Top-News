@@ -23,7 +23,6 @@ import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.local.preference.PreferencesManager;
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,7 +31,7 @@ import java.util.TimeZone;
 
 import androidx.databinding.BindingAdapter;
 
-public class Article implements Serializable
+public class Article
 {
     private Source source;
     private String title;
@@ -77,13 +76,20 @@ public class Article implements Serializable
     @BindingAdapter(value = "imageUrl")
     public static void loadResizedImage(ImageView imageView, String url)
     {
-        Picasso.get()
-                .load(url)
-                .resize(100, 100)
-                .centerCrop()
-                .placeholder(R.drawable.loading_mark)
-                .error(R.drawable.warning_sign)
-                .into(imageView);
+        if(url != null)
+        {
+            Picasso.get()
+                    .load(url)
+                    .resize(100, 100)
+                    .centerCrop()
+                    .placeholder(R.drawable.loading_mark)
+                    .error(R.drawable.warning_sign)
+                    .into(imageView);
+        }
+        else
+        {
+            imageView.setImageResource(R.drawable.warning_sign);
+        }
     }
 
     @BindingAdapter(value = "date")
@@ -97,7 +103,7 @@ public class Article implements Serializable
             Date date = simpleDateFormat.parse(dateString);
             Locale locale = null;
 
-            if(PreferencesManager.getCountryCode().equals("us") || PreferencesManager.getCountryCode().equals("gb"))
+            if(PreferencesManager.getCountry().equals("us") || PreferencesManager.getCountry().equals("gb"))
             {
                 locale = new Locale("en");
             }
@@ -105,7 +111,7 @@ public class Article implements Serializable
             {
                 for(Locale tmp : Locale.getAvailableLocales())
                 {
-                    if(PreferencesManager.getCountry().equals(tmp.getDisplayCountry()))
+                    if(PreferencesManager.getCountryName().equals(tmp.getDisplayCountry()))
                     {
                         locale = tmp;
                         break;
@@ -115,7 +121,7 @@ public class Article implements Serializable
 
             if(locale == null)
             {
-                locale = Locale.getDefault();
+                locale = new Locale("en");
             }
 
             textView.setText(new SimpleDateFormat("d MMMM yyyy HH:mm", locale).format(date));

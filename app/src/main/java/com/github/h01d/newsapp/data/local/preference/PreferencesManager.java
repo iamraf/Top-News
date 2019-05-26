@@ -16,9 +16,10 @@ package com.github.h01d.newsapp.data.local.preference;
     limitations under the License.
 */
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import androidx.preference.PreferenceManager;
 
 public class PreferencesManager
 {
@@ -33,25 +34,24 @@ public class PreferencesManager
     {
         if(instance == null)
         {
-            instance = context.getSharedPreferences(context.getPackageName(), Activity.MODE_PRIVATE);
+            instance = PreferenceManager.getDefaultSharedPreferences(context);
         }
-    }
-
-    public static void setCountry(String country, String code)
-    {
-        SharedPreferences.Editor prefsEditor = instance.edit();
-        prefsEditor.putString("country", country);
-        prefsEditor.putString("country_code", code);
-        prefsEditor.apply();
     }
 
     public static String getCountry()
     {
-        return instance.getString("country", "Greece");
+        return instance.getString("pref_country", "gr");
     }
 
-    public static String getCountryCode()
+    public static String getCountryName()
     {
-        return instance.getString("country_code", "gr");
+        return instance.getString("pref_country_name", "Greece");
+    }
+
+    public static void setCountryName(String name)
+    {
+        SharedPreferences.Editor prefsEditor = instance.edit();
+        prefsEditor.putString("pref_country_name", name);
+        prefsEditor.apply();
     }
 }

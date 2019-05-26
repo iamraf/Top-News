@@ -17,7 +17,6 @@ package com.github.h01d.newsapp.ui.article;
 */
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.h01d.newsapp.data.remote.model.Article;
@@ -82,15 +81,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
 
         void bind(Article item)
         {
-            binding.getRoot().setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    listener.onClicked(binding.getArticle());
-                }
-            });
-
+            binding.getRoot().setOnClickListener(v -> listener.onClicked(binding.getArticle()));
             binding.setArticle(item);
             binding.executePendingBindings();
         }
