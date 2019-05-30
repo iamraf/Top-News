@@ -12,9 +12,18 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Application">
+        <ListPreference
+            android:defaultValue="default"
+            android:entries="@array/themeList"
+            android:entryValues="@array/themeEntry"
+            android:icon="@drawable/ic_brightness_3_orange_24dp"
+            android:key="pref_theme"
+            android:summary="%s"
+            android:title="Theme" />
+
         <Preference
-            android:key="pref_about"
             android:icon="@drawable/ic_info_outline_black_24dp"
+            android:key="pref_about"
             android:title="About" />
     </PreferenceCategory>
 </PreferenceScreen>

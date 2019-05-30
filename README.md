@@ -2,7 +2,7 @@
 
 Top News is a simple News Application displaying top headlines from [News API](https://newsapi.org) for 54 available countries.
 
-Project is implemented following MVVM architecture pattern and uses RxJava, Retrofit and Databinding.
+Project is implemented following MVVM architecture pattern and uses RxJava, Retrofit, Databinding and Dark Theme.
 
 Icons made by [Freepik](https://www.freepik.com/) from www.flaticon.com is licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/)
 
@@ -12,7 +12,7 @@ Icons made by [Freepik](https://www.freepik.com/) from www.flaticon.com is licen
 
 [Youtube Video](https://www.youtube.com/watch?v=O76VAV1PDWA)
 
-![image](https://i.imgur.com/VmVfUqa.png)
+![image](https://i.imgur.com/PZtM60f.png)
 
 _Browse all preview pictures [here](https://imgur.com/a/UxM9u0B)._
 

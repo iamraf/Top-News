@@ -28,6 +28,7 @@ import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.local.preference.PreferencesManager;
 import com.github.h01d.newsapp.ui.article.ArticlesFragment;
 import com.github.h01d.newsapp.ui.settings.SettingsActivity;
+import com.github.h01d.newsapp.util.ThemeHelper;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         PreferencesManager.init(getApplicationContext());
+
+        ThemeHelper.applyTheme(PreferencesManager.getTheme());
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.a_main_frame, new ArticlesFragment());
