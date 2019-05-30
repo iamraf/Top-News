@@ -23,8 +23,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#fdfdfd">
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/i_article_image"
