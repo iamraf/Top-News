@@ -43,7 +43,7 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
     private ArticlesViewModel mViewModel;
     private FragmentArticlesBinding mDataBinding;
 
-    private CompositeDisposable mDisposable;
+    private CompositeDisposable disposable;
 
     public ArticlesFragment()
     {
@@ -55,13 +55,17 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
     {
         mDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_articles, container, false);
 
-        mDisposable = new CompositeDisposable();
+        disposable = new CompositeDisposable();
 
         mDataBinding.fArticlesRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         mDataBinding.fArticlesRecycler.setHasFixedSize(true);
         mDataBinding.fArticlesRecycler.setAdapter(new ArticlesAdapter(this));
 
-        mDataBinding.fArticlesSwipe.setOnRefreshListener(() -> mViewModel.fetchNews());
+        mDataBinding.fArticlesSwipe.setOnRefreshListener(() ->
+        {
+            mViewModel.fetchNews();
+            mDataBinding.fArticlesSwipe.setRefreshing(false);
+        });
 
         return mDataBinding.getRoot();
     }
@@ -73,40 +77,41 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
 
         mViewModel = ViewModelProviders.of(this).get(ArticlesViewModel.class);
 
-        mDisposable.add(mViewModel.getLoadingIndicator()
+        disposable.add(mViewModel.getLoadingIndicator()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aBoolean ->
                 {
                     if(aBoolean)
                     {
-                        mDataBinding.fArticlesSwipe.setRefreshing(true);
-                        mDataBinding.fArticlesErrorText.setVisibility(View.GONE);
+                        mDataBinding.fArticlesProgress.setVisibility(View.VISIBLE);
+                        mDataBinding.fArticlesContent.setVisibility(View.GONE);
+                        mDataBinding.fArticlesError.setVisibility(View.GONE);
                     }
                     else
                     {
-                        mDataBinding.fArticlesSwipe.setRefreshing(false);
+                        mDataBinding.fArticlesProgress.setVisibility(View.GONE);
                     }
                 }));
 
-        mDisposable.add(mViewModel.getArticles()
+        disposable.add(mViewModel.getArticles()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(articlesResponse ->
                 {
                     ((ArticlesAdapter) mDataBinding.fArticlesRecycler.getAdapter()).setData(articlesResponse.getArticles());
+                    mDataBinding.fArticlesContent.setVisibility(View.VISIBLE);
 
                     getActivity().setTitle(mViewModel.getCountryName());
                 }));
 
-        mDisposable.add(mViewModel.getErrorMessage()
+        disposable.add(mViewModel.getErrorMessage()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s ->
                 {
                     mDataBinding.fArticlesErrorText.setText(s);
-                    mDataBinding.fArticlesErrorText.setVisibility(View.VISIBLE);
-                    mDataBinding.fArticlesRecycler.setVisibility(View.GONE);
+                    mDataBinding.fArticlesError.setVisibility(View.VISIBLE);
                 }));
     }
 
@@ -123,7 +128,7 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
     {
         super.onDestroy();
 
-        mDisposable.dispose();
+        disposable.dispose();
     }
 
     @Override

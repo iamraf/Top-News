@@ -6,8 +6,8 @@ android {
         applicationId "com.github.h01d.newsapp"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 4
-        versionName "1.3"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

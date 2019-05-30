@@ -1,10 +1,5 @@
 # Changelog
 
-## Version 1.3 _(30/05/2019)_
-
-- Adds Dark Theme.
-- Improves UI.
-
 ## Version 1.2 _(26/05/2019)_
 
 - Adds Settings activity.

@@ -12,7 +12,7 @@ Icons made by [Freepik](https://www.freepik.com/) from www.flaticon.com is licen
 
 [Youtube Video](https://www.youtube.com/watch?v=O76VAV1PDWA)
 
-![image](https://i.imgur.com/PZtM60f.png)
+![image](https://i.imgur.com/VmVfUqa.png)
 
 _Browse all preview pictures [here](https://imgur.com/a/UxM9u0B)._
 

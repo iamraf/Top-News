@@ -54,9 +54,4 @@ public class PreferencesManager
         prefsEditor.putString("pref_country_name", name);
         prefsEditor.apply();
     }
-
-    public static String getTheme()
-    {
-        return instance.getString("pref_theme", "default");
-    }
 }

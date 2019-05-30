@@ -19,5 +19,5 @@ package com.github.h01d.newsapp.util;
 public class Constants
 {
     public static String API_URL = "https://newsapi.org/";
-    public static String API_KEY = "8d69be1c49ec420ba9c3fcf6618d8ae0";
+    public static String API_KEY = "YOUR_API_KEY";
 }

@@ -26,7 +26,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.local.preference.PreferencesManager;
-import com.github.h01d.newsapp.util.ThemeHelper;
 
 public class SettingsActivity extends AppCompatActivity
 {
@@ -53,54 +52,37 @@ public class SettingsActivity extends AppCompatActivity
             setPreferencesFromResource(R.xml.preferences, rootKey);
 
             ListPreference listPreference = findPreference("pref_country");
-            if(listPreference != null)
-            {
-                listPreference.setOnPreferenceChangeListener((preference, newValue) ->
-                {
-                    final String[] codes = getResources().getStringArray(R.array.codes);
-                    final String[] countries = getResources().getStringArray(R.array.countries);
+            listPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                final String[] codes = getResources().getStringArray(R.array.codes);
+                final String[] countries = getResources().getStringArray(R.array.countries);
 
-                    for(int i = 0; i < codes.length; i++)
+                for(int i = 0; i < codes.length; i++)
+                {
+                    if(newValue.toString().equals(codes[i]))
                     {
-                        if(newValue.toString().equals(codes[i]))
-                        {
-                            PreferencesManager.setCountryName(countries[i]);
+                        PreferencesManager.setCountryName(countries[i]);
 
-                            return true;
-                        }
+                        return true;
                     }
+                }
 
-                    PreferencesManager.setCountryName("Top News");
+                //Just in case
+                PreferencesManager.setCountryName("Top News");
 
-                    return true;
-                });
-            }
-
-            ListPreference themePreference = findPreference("pref_theme");
-            if(themePreference != null)
-            {
-                themePreference.setOnPreferenceChangeListener((preference, newValue) ->
-                {
-                    ThemeHelper.applyTheme((String) newValue);
-
-                    return true;
-                });
-            }
+                return true;
+            });
 
             Preference about = findPreference("pref_about");
-            if(about != null)
+            about.setOnPreferenceClickListener(preference ->
             {
-                about.setOnPreferenceClickListener(preference ->
-                {
-                    new AlertDialog.Builder(getContext())
-                            .setTitle("Top News")
-                            .setMessage("Open source news application.\n\nIcons made by Freepik.\nPowered by News API.")
-                            .setNegativeButton("Close", null)
-                            .show();
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Top News")
+                        .setMessage("Open source news application.\n\nIcons made by Freepik.\nPowered by News API.")
+                        .setNegativeButton("Close", null)
+                        .show();
 
-                    return true;
-                });
-            }
+                return true;
+            });
         }
     }
 }

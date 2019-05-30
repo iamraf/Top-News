@@ -112,16 +112,4 @@
         <item>us</item>
         <item>ve</item>
     </string-array>
-
-    <string-array name="themeList">
-        <item>Light</item>
-        <item>Dark</item>
-        <item>Default</item>
-    </string-array>
-
-    <string-array name="themeEntry">
-        <item>light</item>
-        <item>dark</item>
-        <item>default</item>
-    </string-array>
 </resources>
