@@ -32,6 +32,7 @@
                     android:layout_marginBottom="8dp"
                     android:fontFamily="sans-serif-light"
                     android:textAlignment="center"
+                    android:textColor="?android:attr/textColorSecondary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -47,8 +48,6 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
     </FrameLayout>
 </layout>

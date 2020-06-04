@@ -1,7 +1,7 @@
 package com.github.h01d.newsapp.ui.article;
 
 /*
-    Copyright 2019 Raf
+    Copyright 2019-2020 Raf
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.remote.model.Article;
 import com.github.h01d.newsapp.databinding.FragmentArticlesBinding;
+import com.github.h01d.newsapp.ui.main.MainActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,11 +45,6 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
     private FragmentArticlesBinding mDataBinding;
 
     private CompositeDisposable mDisposable;
-
-    public ArticlesFragment()
-    {
-
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -96,7 +92,7 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
                 {
                     ((ArticlesAdapter) mDataBinding.fArticlesRecycler.getAdapter()).setData(articlesResponse.getArticles());
 
-                    getActivity().setTitle(mViewModel.getCountryName());
+                    ((MainActivity) getActivity()).setToolbarTitle(mViewModel.getCountryName());
                 }));
 
         mDisposable.add(mViewModel.getErrorMessage()
@@ -105,6 +101,8 @@ public class ArticlesFragment extends Fragment implements ArticlesAdapter.Articl
                 .subscribe(s ->
                 {
                     mDataBinding.fArticlesErrorText.setVisibility(View.VISIBLE);
+                    mDataBinding.fArticlesErrorText.setText(s);
+
                     mDataBinding.fArticlesRecycler.setVisibility(View.GONE);
                 }));
     }

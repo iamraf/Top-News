@@ -1,7 +1,7 @@
 package com.github.h01d.newsapp.ui.settings;
 
 /*
-    Copyright 2019 Raf
+    Copyright 2019-2020 Raf
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.local.preference.PreferencesManager;
+import com.github.h01d.newsapp.databinding.SettingsActivityBinding;
 import com.github.h01d.newsapp.util.ThemeHelper;
 
 public class SettingsActivity extends AppCompatActivity
@@ -34,9 +36,11 @@ public class SettingsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings_activity);
 
-        getSupportActionBar().setTitle("Settings");
+        SettingsActivityBinding mDataBinding = DataBindingUtil.setContentView(this, R.layout.settings_activity);
+
+        mDataBinding.aSettingsToolbar.setTitle("Settings");
+        setSupportActionBar(mDataBinding.aSettingsToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getSupportFragmentManager()

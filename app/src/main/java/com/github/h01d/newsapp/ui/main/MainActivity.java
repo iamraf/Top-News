@@ -1,7 +1,7 @@
 package com.github.h01d.newsapp.ui.main;
 
 /*
-    Copyright 2019 Raf
+    Copyright 2019-2020 Raf
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@ package com.github.h01d.newsapp.ui.main;
     limitations under the License.
 */
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
@@ -26,17 +28,24 @@ import android.view.MenuItem;
 
 import com.github.h01d.newsapp.R;
 import com.github.h01d.newsapp.data.local.preference.PreferencesManager;
+import com.github.h01d.newsapp.databinding.ActivityMainBinding;
 import com.github.h01d.newsapp.ui.article.ArticlesFragment;
 import com.github.h01d.newsapp.ui.settings.SettingsActivity;
 import com.github.h01d.newsapp.util.ThemeHelper;
 
 public class MainActivity extends AppCompatActivity
 {
+    private ActivityMainBinding mDataBinding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        mDataBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        mDataBinding.aMainToolbar.setTitle("Top News");
+        setSupportActionBar(mDataBinding.aMainToolbar);
 
         PreferencesManager.init(getApplicationContext());
 
@@ -57,17 +66,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
         super.onOptionsItemSelected(item);
 
-        switch(item.getItemId())
+        if(item.getItemId() == R.id.m_main_settings)
         {
-            case R.id.m_main_settings:
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            return true;
         }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void setToolbarTitle(String title)
+    {
+        mDataBinding.aMainToolbar.setTitle(title);
     }
 }

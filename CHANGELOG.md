@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.4 _(06/04/2020)_
+
+- Dark theme rework.
+
 ## Version 1.3 _(30/05/2019)_
 
 - Adds Dark Theme.

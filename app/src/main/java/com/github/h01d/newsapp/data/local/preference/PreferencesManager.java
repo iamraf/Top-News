@@ -1,7 +1,7 @@
 package com.github.h01d.newsapp.data.local.preference;
 
 /*
-    Copyright 2019 Raf
+    Copyright 2019-2020 Raf
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,11 +24,6 @@ import androidx.preference.PreferenceManager;
 public class PreferencesManager
 {
     private static SharedPreferences instance = null;
-
-    private PreferencesManager()
-    {
-
-    }
 
     public static void init(Context context)
     {
